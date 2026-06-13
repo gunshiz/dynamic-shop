@@ -59,3 +59,19 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+## 5. Project Architecture
+
+The project has been refactored into specific packages to maintain a clean and organized codebase. Always place new classes in their appropriate package:
+
+- **`commands/`**: Contains all command executors (e.g., `ShopCommand`, `SellCommand`, `StockCommand`, `ShopAdminCommand`).
+- **`managers/`**: Handles core business logic and background tasks (e.g., `DatabaseManager`, `EconomyManager`, `MarketEventManager`, `ShopManager`).
+- **`listeners/`**: Contains Spigot event listeners (e.g., `ShopGUIListener`).
+- **`utils/`**: Utility classes and helpers (e.g., `GUIUtils`, `PricingEngine`).
+- **`models/`**: Data structures, models, and enums (e.g., `ShopItem`, `SortType`).
+- **Root**: Contains the main plugin entry point (`DynamicShopPlugin`).
+
+## 6. Build and Deploy Workflow
+
+Whenever you build the project (`mvn clean package`), you **must** also execute the upload script (`bun upload.ts`) to ensure the compiled plugin is automatically pushed to the server for testing.
+**Standard Command:** `mvn clean package && bun upload.ts`
