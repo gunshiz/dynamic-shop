@@ -2,6 +2,10 @@ package com.gunshiz.dynamicshop;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import com.gunshiz.dynamicshop.commands.*;
+import com.gunshiz.dynamicshop.managers.*;
+import com.gunshiz.dynamicshop.listeners.*;
+import com.gunshiz.dynamicshop.utils.*;
+import com.gunshiz.dynamicshop.models.*;
 
 public class DynamicShopPlugin extends JavaPlugin {
 

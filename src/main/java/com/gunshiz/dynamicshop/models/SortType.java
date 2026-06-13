@@ -1,4 +1,10 @@
-package com.gunshiz.dynamicshop;
+package com.gunshiz.dynamicshop.models;
+
+import com.gunshiz.dynamicshop.*;
+import com.gunshiz.dynamicshop.managers.*;
+import com.gunshiz.dynamicshop.listeners.*;
+import com.gunshiz.dynamicshop.utils.*;
+import com.gunshiz.dynamicshop.models.*;
 
 public enum SortType {
     NAME_ASC("Name (A-Z)"),
