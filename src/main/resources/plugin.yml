@@ -1,0 +1,24 @@
+name: DynamicShop
+version: 1.0
+main: com.gunshiz.dynamicshop.DynamicShopPlugin
+api-version: '1.20'
+depend: [Vault]
+commands:
+  shop:
+    description: Open the dynamic shop GUI
+    aliases: [ds]
+  merge:
+    description: Merge a YML file into the shop database
+    permission: dynamicshop.admin.merge
+    usage: /merge <file.yml>
+  shopadmin:
+    description: Admin commands for DynamicShop
+    aliases: [sadm]
+    permission: dynamicshop.admin.shop
+    usage: /sadm <command>
+  stock:
+    description: View today's market fluctuations
+    usage: /stock
+  sell:
+    description: Sell items from your inventory
+    usage: /sell <hand|all|handall|gui>
