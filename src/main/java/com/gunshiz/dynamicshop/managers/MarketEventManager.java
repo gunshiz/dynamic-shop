@@ -65,10 +65,21 @@ public class MarketEventManager {
 
         for (int i = 0; i < picked; i++) {
             ShopItem item = items.get(i);
-            int change = random.nextInt(51) - 25; // -25 to +25 stock change
+            double basePrice = item.getBasePrice();
             
-            if (change == 0) continue; 
-
+            int change = 0;
+            // Higher price = lower chance to restock
+            double restockChance = Math.max(0.1, Math.min(0.9, 10.0 / basePrice));
+            
+            if (random.nextDouble() < restockChance) {
+                // Positive restock
+                // Higher price = lower max restock
+                int maxPositive = (int) Math.max(5, 50.0 / basePrice);
+                change = random.nextInt(maxPositive) + 1; // 1 to maxPositive
+            } else {
+                continue; // Do not decrease stock, just skip
+            }
+            
             int currentStock = item.getCurrentStock();
             int newStock = currentStock + change;
             
