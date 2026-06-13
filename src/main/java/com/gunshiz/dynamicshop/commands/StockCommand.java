@@ -12,7 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import java.util.List;
+import java.util.Map;
 
 public class StockCommand implements CommandExecutor {
 
@@ -24,18 +24,23 @@ public class StockCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        List<ShopItem> items = plugin.getShopManager().getItems();
+        Map<Material, Integer> fluctuations = plugin.getMarketEventManager().getTodaysFluctuations();
 
-        if (items.isEmpty()) {
-            sender.sendMessage(ChatColor.YELLOW + "The shop is currently empty.");
+        if (fluctuations.isEmpty()) {
+            sender.sendMessage(ChatColor.YELLOW + "No market fluctuations have happened yet today.");
             return true;
         }
 
-        sender.sendMessage(ChatColor.GOLD + "=== Shop Items Stock ===");
-        for (ShopItem item : items) {
-            String name = item.getMaterial().name();
-            int stock = item.getCurrentStock();
-            sender.sendMessage(ChatColor.AQUA + name + ": " + ChatColor.WHITE + stock + " stock");
+        sender.sendMessage(ChatColor.GOLD + "=== Today's Market Fluctuations ===");
+        for (Map.Entry<Material, Integer> entry : fluctuations.entrySet()) {
+            int change = entry.getValue();
+            String name = entry.getKey().name();
+            
+            if (change > 0) {
+                sender.sendMessage(ChatColor.AQUA + name + ": " + ChatColor.GREEN + "+" + change + " stock");
+            } else {
+                sender.sendMessage(ChatColor.AQUA + name + ": " + ChatColor.RED + change + " stock");
+            }
         }
 
         return true;
