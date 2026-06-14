@@ -8,6 +8,7 @@ import com.gunshiz.dynamicshop.models.*;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -181,6 +182,7 @@ public class ShopGUIListener implements Listener {
                     }
                     plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() - transactionAmount);
                     player.sendMessage(ChatColor.GREEN + "Bought " + transactionAmount + " " + shopItem.getMaterial().name() + " for $" + String.format("%.2f", price));
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_YES, 1.0f, 1.0f);
                 } else {
                     int count = 0;
                     for (ItemStack is : player.getInventory().getContents()) {
@@ -217,6 +219,7 @@ public class ShopGUIListener implements Listener {
                     plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() + transactionAmount);
                     player.sendMessage(ChatColor.GREEN + "Sold " + transactionAmount + " " + shopItem.getMaterial().name() + " for $" + String.format("%.2f", price));
                     player.sendTitle(ChatColor.GREEN + "+$" + String.format("%.2f", price), "", 10, 40, 10);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
                 }
                 
                 // Refresh shop to show updated stock and prices
@@ -287,6 +290,7 @@ public class ShopGUIListener implements Listener {
                 plugin.getEconomyManager().getEconomy().depositPlayer(player, totalEarned);
                 player.sendMessage(ChatColor.GREEN + "Sold " + totalItemsSold + " items from the GUI for $" + String.format("%.2f", totalEarned));
                 player.sendTitle(ChatColor.GREEN + "+$" + String.format("%.2f", totalEarned), "", 10, 40, 10);
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
             }
             if (returnedItems) {
                 player.sendMessage(ChatColor.YELLOW + "Some items couldn't be sold (max stock or invalid) and were returned to you.");

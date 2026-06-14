@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
@@ -142,6 +143,7 @@ public class SellCommand implements TabExecutor {
         plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() + amountToSell);
         player.sendMessage(ChatColor.GREEN + "Sold " + amountToSell + " " + material.name() + " for $" + String.format("%.2f", price));
         player.sendTitle(ChatColor.GREEN + "+$" + String.format("%.2f", price), "", 10, 40, 10);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
 
         if (amountToSell < availableToSell) {
             player.sendMessage(ChatColor.YELLOW + "Could not sell " + (availableToSell - amountToSell) + " items because the shop reached max stock.");
@@ -185,6 +187,7 @@ public class SellCommand implements TabExecutor {
         if (totalItemsSold > 0) {
             player.sendMessage(ChatColor.GREEN + "Sold " + totalItemsSold + " items for $" + String.format("%.2f", totalEarned));
             player.sendTitle(ChatColor.GREEN + "+$" + String.format("%.2f", totalEarned), "", 10, 40, 10);
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
         } else {
             player.sendMessage(ChatColor.RED + "No sellable items found or shop max stock reached.");
         }
