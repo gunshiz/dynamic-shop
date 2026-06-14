@@ -75,3 +75,63 @@ The project has been refactored into specific packages to maintain a clean and o
 
 Whenever you build the project (`mvn clean package`), you **must** also execute the upload script (`bun upload.ts`) to ensure the compiled plugin is automatically pushed to the server for testing.
 **Standard Command:** `mvn clean package && bun upload.ts`
+
+## 7. Purpur 26.1.2 API
+
+This project targets **Purpur 26.1.2** (Minecraft 1.21.6+). Key notes:
+
+### Version Format
+Purpur has moved away from `1.X.X-R0.1-SNAPSHOT`. The new format is build-based:
+```xml
+<version>26.1.2.build.2591-stable</version>
+```
+To find latest builds: `curl https://repo.purpurmc.org/snapshots/org/purpurmc/purpur/purpur-api/maven-metadata.xml`
+
+### Maven Repository
+```xml
+<repository>
+    <id>purpur</id>
+    <url>https://repo.purpurmc.org/snapshots</url>
+</repository>
+```
+
+## 8. Dialog API (Native Custom Screens)
+
+Minecraft 1.21.6+ introduced a native **Dialog API** for server-side custom screens with text inputs, buttons, labels, and more. This replaces the need for AnvilGUI or Sign GUI hacks.
+
+### Key Packages
+- `io.papermc.paper.dialog.Dialog` — Main Dialog interface, created via `Dialog.create()`
+- `io.papermc.paper.registry.data.dialog.DialogBase` — Title, body text, and inputs
+- `io.papermc.paper.registry.data.dialog.body.DialogBody` — Body content (e.g., `plainMessage()`)
+- `io.papermc.paper.registry.data.dialog.input.DialogInput` — Input fields (`text()`, `bool()`, `numberRange()`, `singleOption()`)
+- `io.papermc.paper.registry.data.dialog.type.DialogType` — Dialog types (e.g., `notice()`)
+- `io.papermc.paper.registry.data.dialog.ActionButton` — Buttons with labels and actions
+- `io.papermc.paper.registry.data.dialog.action.DialogAction` — Action handlers (`customClick()`, `CommandTemplateAction`, `StaticAction`)
+
+### Usage Pattern
+```java
+Dialog dialog = Dialog.create(factory -> {
+    factory.builder(Key.key("dynamicshop", "my_dialog"))
+        .base(DialogBase.builder(Component.text("Title"))
+            .body(List.of(DialogBody.plainMessage(Component.text("Body text"))))
+            .inputs(List.of(DialogInput.text("input_key", 200, Component.text("Label"), true, "", 128, null)))
+            .build())
+        .type(DialogType.notice(
+            ActionButton.builder(Component.text("OK"))
+                .width(200)
+                .action(DialogAction.customClick((audience, ctx) -> {
+                    String value = ctx.input("input_key");
+                    // handle input
+                }))
+                .build()
+        ));
+});
+player.showDialog(dialog);
+```
+
+### Notes
+- The Dialog API is marked `@Experimental` — method signatures may change between versions.
+- Dialogs render as **native Minecraft client screens** (not inventory GUIs), with the ⚠ "custom screen" warning icon.
+- Supports: text input fields, boolean toggles, number range sliders, single-option dropdowns, buttons.
+- For **Bedrock Edition** players (via Floodgate/Geyser), continue using `Cumulus` forms as the Dialog API is Java Edition only.
+- JavaDocs: `https://jd.papermc.io/paper/26.1.2/`
