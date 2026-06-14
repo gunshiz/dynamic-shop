@@ -109,7 +109,7 @@ public class ShopGUIListener implements Listener {
                     } else {
                         // Use native Dialog API (Minecraft 1.21.6+ / Paper 26.1.2+)
                         io.papermc.paper.dialog.Dialog searchDialog = io.papermc.paper.dialog.Dialog.create(factory -> {
-                            factory.builder(net.kyori.adventure.key.Key.key("dynamicshop", "search_" + player.getUniqueId().toString().replace("-", "")))
+                            factory.empty()
                                 .base(io.papermc.paper.registry.data.dialog.DialogBase.builder(
                                     net.kyori.adventure.text.Component.text("Search Items")
                                 )
@@ -136,9 +136,9 @@ public class ShopGUIListener implements Listener {
                                     )
                                     .width(200)
                                     .action(io.papermc.paper.registry.data.dialog.action.DialogAction.customClick(
-                                        (audience, clickContext) -> {
+                                        (clickContext, audience) -> {
                                             if (audience instanceof Player p) {
-                                                String query = clickContext.input("search_query");
+                                                String query = clickContext.getText("search_query");
                                                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                                                     if (query != null && !query.trim().isEmpty()) {
                                                         playerSearch.put(p.getUniqueId(), query.trim());
@@ -150,7 +150,8 @@ public class ShopGUIListener implements Listener {
                                                     GUIUtils.openShop(plugin, p, playerSearch.get(p.getUniqueId()), sort, 0);
                                                 });
                                             }
-                                        }
+                                        },
+                                        net.kyori.adventure.text.event.ClickCallback.Options.builder().build()
                                     ))
                                     .build()
                                 ));
