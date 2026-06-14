@@ -171,22 +171,14 @@ public class ShopGUIListener implements Listener {
                         return;
                     }
 
-                    int freeSpace = 0;
-                    for (ItemStack is : player.getInventory().getStorageContents()) {
-                        if (is == null || is.getType() == Material.AIR) {
-                            freeSpace += shopItem.getMaterial().getMaxStackSize();
-                        } else if (is.getType() == shopItem.getMaterial() && is.getAmount() < is.getMaxStackSize()) {
-                            freeSpace += (is.getMaxStackSize() - is.getAmount());
-                        }
-                    }
-                    
-                    if (freeSpace < transactionAmount) {
-                        player.sendMessage(ChatColor.RED + "Your inventory is full!");
-                        return;
-                    }
-
                     plugin.getEconomyManager().getEconomy().withdrawPlayer(player, price);
-                    player.getInventory().addItem(new ItemStack(shopItem.getMaterial(), transactionAmount));
+                    HashMap<Integer, ItemStack> leftover = player.getInventory().addItem(new ItemStack(shopItem.getMaterial(), transactionAmount));
+                    if (!leftover.isEmpty()) {
+                        for (ItemStack drop : leftover.values()) {
+                            player.getWorld().dropItem(player.getLocation(), drop);
+                        }
+                        player.sendMessage(ChatColor.YELLOW + "Your inventory was full, some items were dropped on the ground!");
+                    }
                     plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() - transactionAmount);
                     player.sendMessage(ChatColor.GREEN + "Bought " + transactionAmount + " " + shopItem.getMaterial().name() + " for $" + String.format("%.2f", price));
                 } else {
