@@ -25,11 +25,7 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <!-- AnvilGUI Repository -->
-        <repository>
-            <id>mvn-wesjd-net</id>
-            <url>https://mvn.wesjd.net/</url>
-        </repository>
+
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -47,12 +43,11 @@
             <version>2.2.3-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Purpur API (Using a stable API version, fully compatible with 26.1.2) -->
+        <!-- Purpur API 26.1.2 (includes native Dialog API) -->
         <dependency>
             <groupId>org.purpurmc.purpur</groupId>
             <artifactId>purpur-api</artifactId>
-            <!-- Assuming backward compatibility; if 26.1.2 exists in repo, change to 26.1.2-R0.1-SNAPSHOT -->
-            <version>1.20.6-R0.1-SNAPSHOT</version>
+            <version>26.1.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -78,12 +73,7 @@
             <version>8.3.0</version>
         </dependency>
 
-        <!-- AnvilGUI -->
-        <dependency>
-            <groupId>net.wesjd</groupId>
-            <artifactId>anvilgui</artifactId>
-            <version>1.10.13-SNAPSHOT</version>
-        </dependency>
+
     </dependencies>
 
     <build>

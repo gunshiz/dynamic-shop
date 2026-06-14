@@ -107,34 +107,56 @@ public class ShopGUIListener implements Listener {
                         
                         org.geysermc.floodgate.api.FloodgateApi.getInstance().sendForm(player.getUniqueId(), form);
                     } else {
-                        new net.wesjd.anvilgui.AnvilGUI.Builder()
-                            .onClose(stateSnapshot -> {
-                                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                    String search = playerSearch.get(player.getUniqueId());
-                                    SortType sort = playerSort.getOrDefault(player.getUniqueId(), SortType.NAME_ASC);
-                                    int page = playerPage.getOrDefault(player.getUniqueId(), 0);
-                                    GUIUtils.openShop(plugin, player, search, sort, page);
-                                });
-                            })
-                            .onClick((slot, stateSnapshot) -> {
-                                if(slot != net.wesjd.anvilgui.AnvilGUI.Slot.OUTPUT) {
-                                    return java.util.Collections.emptyList();
-                                }
-                                String query = stateSnapshot.getText();
-                                return java.util.Collections.singletonList(
-                                    net.wesjd.anvilgui.AnvilGUI.ResponseAction.run(() -> {
-                                        playerSearch.put(player.getUniqueId(), query);
-                                        playerPage.put(player.getUniqueId(), 0);
-                                        SortType sort = playerSort.getOrDefault(player.getUniqueId(), SortType.NAME_ASC);
-                                        GUIUtils.openShop(plugin, player, query, sort, 0);
-                                    })
-                                );
-                            })
-                            .text("Value")
-                            .itemLeft(new ItemStack(Material.PAPER))
-                            .title("Search Items")
-                            .plugin(plugin)
-                            .open(player);
+                        // Use native Dialog API (Minecraft 1.21.6+ / Paper 26.1.2+)
+                        io.papermc.paper.dialog.Dialog searchDialog = io.papermc.paper.dialog.Dialog.create(factory -> {
+                            factory.builder(net.kyori.adventure.key.Key.key("dynamicshop", "search_" + player.getUniqueId().toString().replace("-", "")))
+                                .base(io.papermc.paper.registry.data.dialog.DialogBase.builder(
+                                    net.kyori.adventure.text.Component.text("Search Items")
+                                )
+                                .body(java.util.List.of(
+                                    io.papermc.paper.registry.data.dialog.body.DialogBody.plainMessage(
+                                        net.kyori.adventure.text.Component.text("Enter an item name to search for in the shop.")
+                                    )
+                                ))
+                                .inputs(java.util.List.of(
+                                    io.papermc.paper.registry.data.dialog.input.DialogInput.text(
+                                        "search_query",
+                                        200,
+                                        net.kyori.adventure.text.Component.text("Item Name"),
+                                        true,
+                                        "",
+                                        128,
+                                        null
+                                    )
+                                ))
+                                .build())
+                                .type(io.papermc.paper.registry.data.dialog.type.DialogType.notice(
+                                    io.papermc.paper.registry.data.dialog.ActionButton.builder(
+                                        net.kyori.adventure.text.Component.text("\u2714 Search")
+                                    )
+                                    .width(200)
+                                    .action(io.papermc.paper.registry.data.dialog.action.DialogAction.customClick(
+                                        (audience, clickContext) -> {
+                                            if (audience instanceof Player p) {
+                                                String query = clickContext.input("search_query");
+                                                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                                                    if (query != null && !query.trim().isEmpty()) {
+                                                        playerSearch.put(p.getUniqueId(), query.trim());
+                                                    } else {
+                                                        playerSearch.remove(p.getUniqueId());
+                                                    }
+                                                    playerPage.put(p.getUniqueId(), 0);
+                                                    SortType sort = playerSort.getOrDefault(p.getUniqueId(), SortType.NAME_ASC);
+                                                    GUIUtils.openShop(plugin, p, playerSearch.get(p.getUniqueId()), sort, 0);
+                                                });
+                                            }
+                                        }
+                                    ))
+                                    .build()
+                                ));
+                        });
+
+                        player.showDialog(searchDialog);
                     }
                 }
                 return;
