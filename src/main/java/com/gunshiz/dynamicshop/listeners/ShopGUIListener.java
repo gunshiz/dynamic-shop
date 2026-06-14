@@ -206,8 +206,21 @@ public class ShopGUIListener implements Listener {
                     }
 
                     double price = plugin.getPricingEngine().getExactSellPrice(shopItem, transactionAmount);
-                    ItemStack toRemove = new ItemStack(shopItem.getMaterial(), transactionAmount);
-                    player.getInventory().removeItem(toRemove);
+                    int remainingToRemove = transactionAmount;
+                    ItemStack[] contents = player.getInventory().getContents();
+                    for (int i = 0; i < contents.length; i++) {
+                        ItemStack is = contents[i];
+                        if (is != null && is.getType() == shopItem.getMaterial()) {
+                            if (is.getAmount() <= remainingToRemove) {
+                                remainingToRemove -= is.getAmount();
+                                player.getInventory().setItem(i, null);
+                            } else {
+                                is.setAmount(is.getAmount() - remainingToRemove);
+                                remainingToRemove = 0;
+                                break;
+                            }
+                        }
+                    }
                     plugin.getEconomyManager().getEconomy().depositPlayer(player, price);
                     plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() + transactionAmount);
                     player.sendMessage(ChatColor.GREEN + "Sold " + transactionAmount + " " + shopItem.getMaterial().name() + " for $" + String.format("%.2f", price));
