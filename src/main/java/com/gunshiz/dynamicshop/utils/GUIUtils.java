@@ -59,7 +59,10 @@ public class GUIUtils {
                 lore.add(ChatColor.GREEN + "Buy Price: " + ChatColor.GOLD + "$" + String.format("%.2f", buyPrice));
                 lore.add(ChatColor.RED + "Sell Price: " + ChatColor.GOLD + "$" + String.format("%.2f", sellPrice));
                 lore.add("");
-                lore.add(ChatColor.YELLOW + "Click to Buy / Sell");
+                lore.add(ChatColor.YELLOW + "Left Click: " + ChatColor.WHITE + "Buy 1");
+                lore.add(ChatColor.YELLOW + "Shift-Left Click: " + ChatColor.WHITE + "Buy 64");
+                lore.add(ChatColor.YELLOW + "Right Click: " + ChatColor.WHITE + "Sell 1");
+                lore.add(ChatColor.YELLOW + "Shift-Right Click: " + ChatColor.WHITE + "Sell 64");
                 
                 meta.setLore(lore);
                 stack.setItemMeta(meta);
@@ -117,80 +120,5 @@ public class GUIUtils {
         inv.setItem(49, searchBtn);
 
         player.openInventory(inv);
-    }
-
-    public static void openAmountSelector(DynamicShopPlugin plugin, Player player, ShopItem item, int amount) {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_BLUE + "Select Amount: " + item.getMaterial().name());
-
-        ItemStack center = new ItemStack(item.getMaterial(), Math.min(64, Math.max(1, amount)));
-        ItemMeta meta = center.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.AQUA + item.getMaterial().name());
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Selected Amount: " + ChatColor.YELLOW + amount);
-            lore.add(ChatColor.GRAY + "Current Stock: " + ChatColor.YELLOW + item.getCurrentStock());
-            
-            double exactBuy = plugin.getPricingEngine().getExactBuyPrice(item, amount);
-            double exactSell = plugin.getPricingEngine().getExactSellPrice(item, amount);
-            
-            lore.add(ChatColor.GREEN + "Total Buy Price: " + ChatColor.GOLD + "$" + String.format("%.2f", exactBuy));
-            lore.add(ChatColor.RED + "Total Sell Price: " + ChatColor.GOLD + "$" + String.format("%.2f", exactSell));
-            meta.setLore(lore);
-            center.setItemMeta(meta);
-        }
-        inv.setItem(13, center);
-
-        // + Buttons top left
-        inv.setItem(0, createModifier(Material.LIME_DYE, "+64"));
-        inv.setItem(1, createModifier(Material.LIME_DYE, "+10"));
-        inv.setItem(2, createModifier(Material.LIME_DYE, "+1"));
-        
-        // - Buttons bottom left
-        inv.setItem(18, createModifier(Material.RED_DYE, "-64"));
-        inv.setItem(19, createModifier(Material.RED_DYE, "-10"));
-        inv.setItem(20, createModifier(Material.RED_DYE, "-1"));
-
-        ItemStack buyBtn = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
-        ItemMeta buyMeta = buyBtn.getItemMeta();
-        if (buyMeta != null) {
-            buyMeta.setDisplayName(ChatColor.GREEN + "CONFIRM BUY");
-            List<String> bLore = new ArrayList<>();
-            bLore.add(ChatColor.GRAY + "Shift-Click to instantly buy 64");
-            buyMeta.setLore(bLore);
-            buyBtn.setItemMeta(buyMeta);
-        }
-        inv.setItem(8, buyBtn); // Top right
-
-        ItemStack sellBtn = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-        ItemMeta sellMeta = sellBtn.getItemMeta();
-        if (sellMeta != null) {
-            sellMeta.setDisplayName(ChatColor.RED + "CONFIRM SELL");
-            List<String> sLore = new ArrayList<>();
-            sLore.add(ChatColor.GRAY + "Shift-Click to instantly sell 64");
-            sellMeta.setLore(sLore);
-            sellBtn.setItemMeta(sellMeta);
-        }
-        inv.setItem(26, sellBtn); // Bottom right
-
-        // Back button
-        ItemStack backBtn = new ItemStack(Material.ARROW);
-        ItemMeta backMeta = backBtn.getItemMeta();
-        if (backMeta != null) {
-            backMeta.setDisplayName(ChatColor.RED + "Back to Shop");
-            backBtn.setItemMeta(backMeta);
-        }
-        inv.setItem(17, backBtn); // Middle right
-
-        player.openInventory(inv);
-    }
-
-    private static ItemStack createModifier(Material mat, String name) {
-        ItemStack item = new ItemStack(mat);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.YELLOW + name);
-            item.setItemMeta(meta);
-        }
-        return item;
     }
 }

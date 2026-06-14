@@ -22,8 +22,6 @@ import java.util.UUID;
 public class ShopGUIListener implements Listener {
 
     private final DynamicShopPlugin plugin;
-    public static final Map<UUID, ShopItem> selectedItem = new HashMap<>();
-    public static final Map<UUID, Integer> selectedAmount = new HashMap<>();
     public static final Map<UUID, SortType> playerSort = new HashMap<>();
     public static final Map<UUID, String> playerSearch = new HashMap<>();
     public static final Map<UUID, Integer> playerPage = new HashMap<>();
@@ -143,36 +141,25 @@ public class ShopGUIListener implements Listener {
 
             ShopItem shopItem = plugin.getShopManager().getItem(currentItem.getType());
             if (shopItem != null) {
-                selectedItem.put(player.getUniqueId(), shopItem);
-                selectedAmount.put(player.getUniqueId(), 1);
-                GUIUtils.openAmountSelector(plugin, player, shopItem, 1);
-            }
-        } else if (event.getView().getTitle().contains("Select Amount: ")) {
-            event.setCancelled(true);
-            if (!(event.getWhoClicked() instanceof Player)) return;
-            Player player = (Player) event.getWhoClicked();
-
-            ShopItem shopItem = selectedItem.get(player.getUniqueId());
-            int amount = selectedAmount.getOrDefault(player.getUniqueId(), 1);
-            if (shopItem == null) return;
-
-            ItemStack currentItem = event.getCurrentItem();
-            if (currentItem == null || currentItem.getType() == Material.AIR) return;
-            
-            if (currentItem.hasItemMeta() && currentItem.getItemMeta().hasDisplayName()) {
-                String name = ChatColor.stripColor(currentItem.getItemMeta().getDisplayName());
+                int transactionAmount = 1;
+                boolean isBuy = false;
+                boolean isSell = false;
                 
-                String search = playerSearch.get(player.getUniqueId());
-                SortType sort = playerSort.getOrDefault(player.getUniqueId(), SortType.NAME_ASC);
-                int page = playerPage.getOrDefault(player.getUniqueId(), 0);
-
-                if (name.equals("Back to Shop")) {
-                    GUIUtils.openShop(plugin, player, search, sort, page);
-                    return;
+                if (event.getClick() == ClickType.LEFT) {
+                    isBuy = true;
+                } else if (event.getClick() == ClickType.SHIFT_LEFT) {
+                    isBuy = true;
+                    transactionAmount = 64;
+                } else if (event.getClick() == ClickType.RIGHT) {
+                    isSell = true;
+                } else if (event.getClick() == ClickType.SHIFT_RIGHT) {
+                    isSell = true;
+                    transactionAmount = 64;
                 }
                 
-                if (name.equals("CONFIRM BUY")) {
-                    int transactionAmount = event.getClick().isShiftClick() ? 64 : amount;
+                if (!isBuy && !isSell) return;
+                
+                if (isBuy) {
                     double price = plugin.getPricingEngine().getExactBuyPrice(shopItem, transactionAmount);
                     if (!plugin.getEconomyManager().getEconomy().has(player, price)) {
                         player.sendMessage(ChatColor.RED + "You don't have enough money!");
@@ -202,10 +189,7 @@ public class ShopGUIListener implements Listener {
                     player.getInventory().addItem(new ItemStack(shopItem.getMaterial(), transactionAmount));
                     plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() - transactionAmount);
                     player.sendMessage(ChatColor.GREEN + "Bought " + transactionAmount + " " + shopItem.getMaterial().name() + " for $" + String.format("%.2f", price));
-                    GUIUtils.openAmountSelector(plugin, player, shopItem, amount);
-                    
-                } else if (name.equals("CONFIRM SELL")) {
-                    int transactionAmount = event.getClick().isShiftClick() ? 64 : amount;
+                } else {
                     int count = 0;
                     for (ItemStack is : player.getInventory().getContents()) {
                         if (is != null && is.getType() == shopItem.getMaterial()) count += is.getAmount();
@@ -228,18 +212,13 @@ public class ShopGUIListener implements Listener {
                     plugin.getShopManager().updateStock(shopItem, shopItem.getCurrentStock() + transactionAmount);
                     player.sendMessage(ChatColor.GREEN + "Sold " + transactionAmount + " " + shopItem.getMaterial().name() + " for $" + String.format("%.2f", price));
                     player.sendTitle(ChatColor.GREEN + "+$" + String.format("%.2f", price), "", 10, 40, 10);
-                    GUIUtils.openAmountSelector(plugin, player, shopItem, amount);
-                    
-                } else if (name.startsWith("+")) {
-                    amount += Integer.parseInt(name.substring(1));
-                    selectedAmount.put(player.getUniqueId(), amount);
-                    GUIUtils.openAmountSelector(plugin, player, shopItem, amount);
-                } else if (name.startsWith("-")) {
-                    amount -= Integer.parseInt(name.substring(1));
-                    if (amount < 1) amount = 1;
-                    selectedAmount.put(player.getUniqueId(), amount);
-                    GUIUtils.openAmountSelector(plugin, player, shopItem, amount);
                 }
+                
+                // Refresh shop to show updated stock and prices
+                String search = playerSearch.get(player.getUniqueId());
+                SortType sort = playerSort.getOrDefault(player.getUniqueId(), SortType.NAME_ASC);
+                int page = playerPage.getOrDefault(player.getUniqueId(), 0);
+                GUIUtils.openShop(plugin, player, search, sort, page);
             }
         }
     }
